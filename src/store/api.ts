@@ -16,6 +16,8 @@ const STORAGE_KEYS = {
     buildings: 'aBuildings',
     vehicles: 'aVehicles',
     allianceinfo: 'aAlliance',
+    settings: 'aSettings',
+    credits: 'aCreditsInfo',
 } as {
     [key in StorageAPIKey]: string;
 };
@@ -23,6 +25,8 @@ const MUTATION_SETTERS = {
     buildings: 'setBuildings',
     vehicles: 'setVehicles',
     allianceinfo: 'setAllianceinfo',
+    settings: 'setSettings',
+    credits: 'setCreditsInfo',
 } as {
     [key in StorageAPIKey]: string;
 };
@@ -87,7 +91,8 @@ const get_from_broadcast = async <API extends StorageAPIKey>(
 };
 const get_api_values = async <API extends StorageAPIKey>(
     key: API,
-    { dispatch, state, commit }: APIActionStoreParams
+    { dispatch, state, commit }: APIActionStoreParams,
+    preventUpdateFetch = false
 ): Promise<StorageGetterReturn<API>> => {
     let stored = {
         lastUpdate: 0,
@@ -112,6 +117,7 @@ const get_api_values = async <API extends StorageAPIKey>(
         stored = (await get_from_broadcast<API>(key, dispatch)) ?? stored;
     if (
         !state.currentlyUpdating.includes(key) &&
+        !preventUpdateFetch &&
         (!stored.value ||
             !Object.values(stored.value).length ||
             stored.lastUpdate < new Date().getTime() - API_MIN_UPDATE)
@@ -168,6 +174,8 @@ export default {
         missions: [],
         key: null,
         lastUpdates: {},
+        settings: {},
+        credits: {},
     },
     mutations: {
         setBuildings(
@@ -210,7 +218,17 @@ export default {
             state.allianceinfo = allianceinfo;
         },
         setVehicleStates(state: APIState, states: { [state: number]: number }) {
-            state.vehicleStates = states;
+            const LSSM = window[PREFIX] as Vue;
+            const fmsReal2Show = (LSSM.$t('fmsReal2Show') as unknown) as {
+                [status: number]: number;
+            };
+            const states_show = {} as { [state: number]: number };
+            Object.keys(states).forEach(
+                key =>
+                    (states_show[fmsReal2Show[parseInt(key)]] =
+                        states[parseInt(key)])
+            );
+            state.vehicleStates = states_show;
         },
         setVehicleState(
             state: APIState,
@@ -218,10 +236,10 @@ export default {
         ) {
             const vehicle = state.vehicles.find(v => v.id === id);
             if (!vehicle) return;
-            state.vehicleStates[vehicle.fms_real]--;
-            if (!state.vehicleStates.hasOwnProperty(fms_real))
-                state.vehicleStates[fms_real] = 0;
-            state.vehicleStates[fms_real]++;
+            state.vehicleStates[vehicle.fms_show]--;
+            if (!state.vehicleStates.hasOwnProperty(fms))
+                state.vehicleStates[fms] = 0;
+            state.vehicleStates[fms]++;
             vehicle.caption = caption;
             vehicle.fms_show = fms;
             vehicle.fms_real = fms_real;
@@ -246,9 +264,27 @@ export default {
                 1
             );
         },
+        setSettings(
+            state: APIState,
+            { value: settings, lastUpdate }: StorageGetterReturn<'settings'>
+        ) {
+            if (!settings) return;
+            state.lastUpdates.settings = lastUpdate;
+            state.settings = settings;
+        },
+        setCreditsInfo(
+            state: APIState,
+            { value: credits, lastUpdate }: StorageGetterReturn<'credits'>
+        ) {
+            // eslint-disable-next-line no-console
+            console.log('setCreditsInfo');
+            if (!credits) return;
+            state.lastUpdates.credits = lastUpdate;
+            state.credits = credits;
+        },
     },
     getters: {
-        vehicle(state, id: number) {
+        vehicle: state => (id: number) => {
             return state.vehicles.find(v => v.id === id);
         },
         vehiclesByBuilding(state) {
@@ -303,8 +339,16 @@ export default {
         },
     } as GetterTree<APIState, RootState>,
     actions: {
+        initialUpdate(store: APIActionStoreParams, type: StorageAPIKey) {
+            return new Promise<void>(resolve =>
+                get_api_values(type, store, true).then(result => {
+                    store.commit(MUTATION_SETTERS[type], result);
+                    resolve();
+                })
+            );
+        },
         setVehicleStates({ dispatch, commit }: APIActionStoreParams) {
-            return new Promise(resolve => {
+            return new Promise<void>(resolve => {
                 dispatch('request', { url: 'api/vehicle_states' })
                     .then(res => res.json())
                     .then(states => {
@@ -399,9 +443,9 @@ export default {
                             lastUpdate,
                         } = await get_api_values('vehicles', store);
                         if (!vehicles) return reject();
-                        vehicles[
-                            vehicles.findIndex(v => v.id === id)
-                        ] = vehicle;
+                        const index = vehicles.findIndex(v => v.id === id);
+                        if (index < 0) vehicles.push(vehicle);
+                        else vehicles[index] = vehicle;
                         set_api_storage(
                             'vehicles',
                             {
@@ -411,7 +455,7 @@ export default {
                             },
                             store
                         );
-                        return resolve(vehicles);
+                        return resolve(vehicle);
                     });
             });
         },
@@ -429,9 +473,11 @@ export default {
                         } = await get_api_values('vehicles', store);
                         if (!vehicles) return reject();
                         vehiclesAt.forEach(vehicle => {
-                            vehicles[
-                                vehicles.findIndex(v => v.id === id)
-                            ] = vehicle;
+                            const index = vehicles.findIndex(
+                                v => v.id === vehicle.id
+                            );
+                            if (index < 0) vehicles.push(vehicle);
+                            else vehicles[index] = vehicle;
                         });
                         set_api_storage(
                             'vehicles',
@@ -442,7 +488,7 @@ export default {
                             },
                             store
                         );
-                        return resolve(vehicles);
+                        return resolve(vehiclesAt);
                     });
             });
         },
@@ -471,6 +517,35 @@ export default {
                 );
             }
         },
+        async registerSettings(
+            store: APIActionStoreParams,
+            autoUpdate = false
+        ) {
+            const { value: settings, lastUpdate } = await get_api_values(
+                'settings',
+                store
+            );
+            if (!settings) return;
+            set_api_storage(
+                'settings',
+                { value: settings, lastUpdate, user_id: window.user_id },
+                store
+            );
+            if (autoUpdate && !store.state.autoUpdates.includes('settings')) {
+                store.commit('enableAutoUpdate', 'settings');
+                window.setInterval(
+                    () => store.dispatch('registerSettings'),
+                    API_MIN_UPDATE
+                );
+            }
+        },
+        async fetchCreditsInfo(store: APIActionStoreParams) {
+            return new Promise(resolve =>
+                get_api_values('credits', store).then(({ value }) =>
+                    resolve(value)
+                )
+            );
+        },
         async getMissions(
             { rootState, state, dispatch, commit }: APIActionStoreParams,
             force: boolean
@@ -483,7 +558,7 @@ export default {
                 const missions = Object.values(
                     await dispatch('request', {
                         // eslint-disable-next-line no-undef
-                        url: `${rootState.server}missions/${BUILD_LANG}.json`,
+                        url: `${rootState.server}missions/${rootState.lang}.json`,
                         init: {
                             method: 'GET',
                         },
@@ -494,6 +569,7 @@ export default {
                     JSON.stringify(missions)
                 );
                 commit('setMissions', missions);
+                return missions;
             } else {
                 const missions = JSON.parse(
                     sessionStorage.getItem('mission_specs_cache') || '{}'

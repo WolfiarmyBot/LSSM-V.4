@@ -1,4 +1,4 @@
 {
-	"location": ".*",
+	"location": "^/((buildings/\\d+(/personals)?)|vehicles/\\d+/zuweisung)/?$",
 	"settings": true
 }

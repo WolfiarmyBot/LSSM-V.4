@@ -17,7 +17,8 @@ export default (LSSM: Vue, MODULE_ID: string, $m: $m): void => {
     dlWrapper.append(existingDl);
     const expansionWrapper = document.createElement('table');
     expansionWrapper.id = LSSM.$store.getters.nodeAttribute(
-        `${MODULE_ID}-expansions-table`
+        `${MODULE_ID}-expansions-table`,
+        true
     );
     const style = document.createElement('style');
     style.textContent = `
@@ -96,7 +97,7 @@ export default (LSSM: Vue, MODULE_ID: string, $m: $m): void => {
         name.style.paddingRight = '1em';
         row.insertCell().append(...labels);
     });
-    moment.locale(BUILD_LANG);
+    moment.locale(LSSM.$store.state.lang);
     window.extensionCountdown = (remaining, id) => {
         if (remaining > 0) {
             document.querySelectorAll(`.extension_countdown_${id}`).forEach(

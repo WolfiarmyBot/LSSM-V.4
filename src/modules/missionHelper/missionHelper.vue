@@ -6,37 +6,52 @@
         :id="id"
     >
         <font-awesome-icon
-            class="pull-right"
+            class="pull-right hover-tip"
             :icon="minified ? faExpandAlt : faCompressAlt"
             :fixed-width="true"
             @click="toggleMinified"
         ></font-awesome-icon>
+        <div class="alert alert-info">
+            {{ $m('tip.minified') }}
+        </div>
         <font-awesome-icon
             v-show="overlay"
             :icon="faArrowsAlt"
-            class="pull-right dragging-field"
+            class="pull-right dragging-field hover-tip"
             :fixed-width="true"
             @mousedown="dragStart"
         ></font-awesome-icon>
+        <div class="alert alert-info">
+            {{ $m('tip.dragging') }}
+        </div>
         <font-awesome-icon
-            class="pull-right"
+            class="pull-right hover-tip"
             :icon="faSyncAlt"
             :spin="isReloading"
             :fixed-width="true"
             @click="reloadSpecs(true)"
         ></font-awesome-icon>
+        <div class="alert alert-info">
+            {{ $m('tip.reload') }}
+        </div>
         <font-awesome-icon
-            class="pull-right"
+            class="pull-right hover-tip"
             :icon="overlay ? faAngleDoubleDown : faAngleDoubleUp"
             :fixed-width="true"
             @click="toggleOverlay"
         ></font-awesome-icon>
+        <div class="alert alert-info">
+            {{ $m('tip.overlay') }}
+        </div>
         <font-awesome-icon
-            class="pull-right"
+            class="pull-right hover-tip"
             :icon="maxState ? faSubscript : faSuperscript"
             :fixed-width="true"
             @click="toggleMaximum"
         ></font-awesome-icon>
+        <div class="alert alert-info">
+            {{ $m('tip.maxState') }}
+        </div>
         <span v-if="isDiyMission">{{ $m('diyMission') }}</span>
         <div v-else-if="missionSpecs">
             <h3 v-if="settings.title">
@@ -67,6 +82,7 @@
                     v-for="(vehicle, req) in vehicles"
                     :key="req"
                     :data-amount="vehicle.amount"
+                    v-bind:class="{ 'class-x': settings.vehicles.xAfterNumber }"
                 >
                     {{ vehicle.caption }}
                     <span v-if="vehicle.additionalText">
@@ -242,15 +258,32 @@
                 {{ missionSpecs.generated_by }}
                 <br />
             </span>
+            <ul v-if="specialRequirements.nonbadge.length">
+                <li
+                    v-for="req in specialRequirements.nonbadge"
+                    :key="req"
+                    :amount="
+                        (amount =
+                            missionSpecs[$m(`noVehicleRequirements.${req}.in`)][
+                                req
+                            ])
+                    "
+                    :data-amount="amount"
+                >
+                    {{ $mc(`noVehicleRequirements.${req}.text`, amount) }}
+                </li>
+            </ul>
             <span
                 class="badge badge-default"
-                v-for="req in specialRequirements"
+                v-for="req in specialRequirements.badge"
                 :key="req"
             >
                 {{
-                    $mc(`requirements.${req}`, missionSpecs.requirements[req])
-                }}:
-                {{ missionSpecs.requirements[req].toLocaleString() }}
+                    $mc(
+                        `noVehicleRequirements.${req}.text`,
+                        missionSpecs[$m(`noVehicleRequirements.${req}.in`)][req]
+                    )
+                }}
             </span>
             <br />
             <span
@@ -326,6 +359,39 @@
                     </span>
                 </a>
             </div>
+            <div
+                v-if="
+                    !maxState &&
+                        settings.subsequent &&
+                        missionSpecs.additional &&
+                        missionSpecs.additional.subsequent_missions_ids
+                "
+            >
+                {{
+                    $tc(
+                        'modules.missionHelper.subsequent',
+                        Object.values(
+                            missionSpecs.additional.subsequent_missions_ids
+                        ).length
+                    )
+                }}:
+                <a
+                    :href="`/einsaetze/${subsequent}`"
+                    v-for="subsequent in missionSpecs.additional
+                        .subsequent_missions_ids"
+                    :key="subsequent"
+                    :mission="
+                        (mission =
+                            missionSpecs.additional.subsequent_missions_names[
+                                subsequent
+                            ])
+                    "
+                >
+                    <span class="badge badge-default" v-if="mission">
+                        {{ mission }}
+                    </span>
+                </a>
+            </div>
         </div>
     </div>
 </template>
@@ -367,7 +433,7 @@ export default Vue.extend<
             faExpandAlt,
             faSuperscript,
             faSubscript,
-            id: this.$store.getters.nodeAttribute('missionHelper'),
+            id: this.$store.getters.nodeAttribute('missionHelper', true),
             isReloading: true,
             isDiyMission: false,
             missionSpecs: undefined,
@@ -380,51 +446,59 @@ export default Vue.extend<
                 window.location.pathname.match(/\d+\/?/)?.[0] || '0'
             ),
             settings: {
-                title: true,
-                id: true,
-                type: true,
-                place: true,
-                prerequisites: true,
+                title: false,
+                id: false,
+                type: false,
+                place: false,
+                prerequisites: false,
                 vehicles: {
-                    title: true,
-                    content: true,
-                    patient_additionals: true,
+                    title: false,
+                    content: false,
+                    patient_additionals: false,
                     sort: 'caption',
+                    sortDesc: false,
+                    xAfterNumber: false,
                 },
                 chances: {
-                    normal: true,
-                    100: true,
+                    normal: false,
+                    100: false,
                 },
                 multifunctionals: {
-                    heavy_rescue_vehicles: true,
-                    battalion_chief_vehicles: true,
-                    platform_trucks: true,
+                    heavy_rescue_vehicles: false,
+                    battalion_chief_vehicles: false,
+                    platform_trucks: false,
+                    police_cars: false,
                 },
                 optionalAlternatives: {
-                    allow_rw_instead_of_lf: true,
-                    allow_arff_instead_of_lf: true,
-                    allow_ktw_instead_of_rtw: true,
+                    allow_rw_instead_of_lf: false,
+                    allow_arff_instead_of_lf: false,
+                    allow_ktw_instead_of_rtw: false,
+                    allow_drone_instead_of_investigation: false,
                 },
                 patients: {
-                    title: true,
-                    content: true,
-                    live: true,
-                    hideWhenNoNeed: true,
-                    patient_allow_first_responder_chance: true,
+                    title: false,
+                    content: false,
+                    live: false,
+                    hideWhenNoNeed: false,
+                    patient_allow_first_responder_chance: false,
                 },
                 prisoners: {
-                    title: true,
-                    content: true,
-                    live: true,
+                    title: false,
+                    content: false,
+                    live: false,
                 },
-                generatedBy: true,
-                credits: true,
-                expansions: true,
-                followup: true,
-                k9_only_if_needed: true,
-                hide_battalion_chief_vehicles: true,
+                generatedBy: false,
+                credits: false,
+                expansions: false,
+                followup: false,
+                subsequent: false,
+                k9_only_if_needed: false,
+                bucket_only_if_needed: false,
+                hide_battalion_chief_vehicles: false,
+                bike_police_only_if_needed: false,
+                noVehicleRequirements: [],
             },
-            noVehicleRequirements: Object.values(
+            noVehicleRequirements: Object.keys(
                 this.$m('noVehicleRequirements')
             ),
             drag: {
@@ -465,9 +539,24 @@ export default Vue.extend<
             return this.getVehicles(this.missionSpecs, false);
         },
         specialRequirements() {
-            return Object.keys(
-                this.missionSpecs?.requirements || {}
-            ).filter(req => this.noVehicleRequirements.includes(req));
+            const reqi18n = (this.$m('noVehicleRequirements') as unknown) as {
+                [key: string]: {
+                    badge: boolean;
+                    text: string;
+                    in: 'additional' | 'prerequisites';
+                };
+            };
+            const reqs = { badge: [], nonbadge: [] } as {
+                badge: string[];
+                nonbadge: string[];
+            };
+            this.settings.noVehicleRequirements?.forEach(req =>
+                reqi18n.hasOwnProperty(req) &&
+                this.missionSpecs?.[reqi18n[req].in][req]
+                    ? reqs[reqi18n[req].badge ? 'badge' : 'nonbadge'].push(req)
+                    : null
+            );
+            return reqs;
         },
     },
     methods: {
@@ -518,11 +607,18 @@ export default Vue.extend<
                             missions.find(spec => spec.id === id)?.name || '',
                         ]) || []
                     );
+                if (this.settings.subsequent && mission.additional)
+                    mission.additional.subsequent_missions_names = Object.fromEntries(
+                        mission.additional.subsequent_missions_ids?.map(id => [
+                            id,
+                            missions.find(spec => spec.id === id)?.name || '',
+                        ]) || []
+                    );
             }
             return mission;
         },
         loadSetting(id, base, base_string = '') {
-            if (typeof base[id] === 'object') {
+            if (typeof base[id] === 'object' && !Array.isArray(base[id])) {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 Object.keys(base[id]).forEach(sid =>
@@ -618,6 +714,22 @@ export default Vue.extend<
                         vehicleName = 'k9_only_if_needed';
                     if (
                         !isMaxReq &&
+                        vehicle === 'helicopter_bucket' &&
+                        missionSpecs?.additional
+                            .need_helicopter_bucket_only_if_present &&
+                        this.settings.bucket_only_if_needed
+                    )
+                        vehicleName = 'bucket_only_if_needed';
+                    if (
+                        !isMaxReq &&
+                        vehicle === 'bike_police' &&
+                        missionSpecs?.additional
+                            .need_bike_police_only_if_present &&
+                        this.settings.bike_police_only_if_needed
+                    )
+                        vehicleName = 'bike_police_only_if_needed';
+                    if (
+                        !isMaxReq &&
                         this.settings.hide_battalion_chief_vehicles &&
                         vehicle === 'battalion_chief_vehicles'
                     )
@@ -652,7 +764,7 @@ export default Vue.extend<
                 Object.keys(patientAdditionals).forEach(
                     patients =>
                         this.currentPatients >= parseInt(patients) &&
-                        (vehicles[patients] = {
+                        (vehicles[`patients_${patients}`] = {
                             amount: 1,
                             caption: patientAdditionals[parseInt(patients)],
                         })
@@ -719,10 +831,11 @@ export default Vue.extend<
                         vehicles[multifunctionals[vehicle].reduce_from].amount;
                     vehicles[
                         multifunctionals[vehicle].reduce_from
-                    ].additionalText = this.$mc(
-                        `vehicles.multifunctionals.${vehicle}.additional_text`,
-                        vehicles[vehicle].old || 0
-                    ).toString();
+                    ].additionalText =
+                        this.$mc(
+                            `vehicles.multifunctionals.${vehicle}.additional_text`,
+                            vehicles[vehicle].old || 0
+                        )?.toString() ?? '';
                 }
             });
             const vehiclesFiltered = {} as VehicleRequirements;
@@ -731,10 +844,14 @@ export default Vue.extend<
                 .sort(([, aVehicle], [, bVehicle]) =>
                     (aVehicle[this.settings.vehicles.sort] || 0) <
                     (bVehicle[this.settings.vehicles.sort] || 0)
-                        ? -1
+                        ? this.settings.vehicles.sortDesc
+                            ? 1
+                            : -1
                         : (aVehicle[this.settings.vehicles.sort] || 0) >
                           (bVehicle[this.settings.vehicles.sort] || 0)
-                        ? 1
+                        ? this.settings.vehicles.sortDesc
+                            ? -1
+                            : 1
                         : 0
                 )
                 .forEach(
@@ -871,10 +988,10 @@ export default Vue.extend<
             .then(minified => (this.minified = minified));
     },
     mounted() {
-        this.reloadSpecs();
         Object.keys(this.settings).forEach(id =>
             this.loadSetting(id, this.settings)
         );
+        this.reloadSpecs();
     },
 });
 </script>
@@ -885,6 +1002,18 @@ export default Vue.extend<
 </style>
 
 <style scoped lang="sass">
+.hover-tip
+  cursor: pointer
+
+  &:hover
+    &+ .alert
+      display: block
+
+  &+ .alert
+    display: none
+    position: absolute
+    z-index: 1
+
 .alert
 
     &.overlay
@@ -922,7 +1051,7 @@ export default Vue.extend<
         list-style: none
 
         &::before
-            content: attr(data-amount) + " "
+            content: attr(data-amount)
 
         @supports #{'selector(li::marker)'}
             &::before
@@ -930,6 +1059,17 @@ export default Vue.extend<
                 white-space: pre
             &::marker
                 content: attr(data-amount)
+
+        &.class-x
+            &::before
+                content: attr(data-amount) "x " !important
+
+            @supports #{'selector(li::marker)'}
+                &::before
+                    content: " " !important
+                    white-space: pre !important
+                &::marker
+                    content: attr(data-amount) "x" !important
 
     .badge
         margin-right: 0.3rem

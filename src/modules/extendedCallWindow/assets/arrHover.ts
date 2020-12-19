@@ -20,7 +20,8 @@ export default (
 
     const infoBox = document.createElement('div');
     infoBox.id = LSSM.$store.getters.nodeAttribute(
-        `${MODULE_ID}-arrHover-infobox`
+        `${MODULE_ID}-arrHover-infobox`,
+        true
     );
     infoBox.classList.add('btn', 'disabled', 'hidden');
 
@@ -37,7 +38,8 @@ export default (
     if (specs) {
         maxAmountNode = document.createElement('span');
         maxAmountNode.id = LSSM.$store.getters.nodeAttribute(
-            `${MODULE_ID}-arrHover-maxAmount`
+            `${MODULE_ID}-arrHover-maxAmount`,
+            true
         );
         maxAmountNode.classList.add('pull-right');
         resetNote = document.createElement('b');
@@ -53,7 +55,7 @@ export default (
         const specsHeadRow = specsHeader.insertRow();
         ['set', 'attribute', 'free', 'max'].forEach(title => {
             const titleEl = specsHeadRow.insertCell();
-            titleEl.textContent = title;
+            titleEl.textContent = $m(`arrHover.headers.${title}`).toString();
             titleEl.setAttribute(
                 'title',
                 $m(`arrHover.titles.${title}`).toString()
@@ -61,7 +63,8 @@ export default (
         });
         arrSpecs = document.createElement('tbody');
         const arrSpecsId = LSSM.$store.getters.nodeAttribute(
-            `${MODULE_ID}_arrHover_specslist`
+            `${MODULE_ID}_arrHover_specslist`,
+            true
         );
         arrSpecs.id = arrSpecsId;
         specsTable.append(specsHeader, arrSpecs);

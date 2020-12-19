@@ -3,73 +3,80 @@ import sort from './sort';
 
 const scripts = process.argv.splice(2);
 
+const build = (mode: string) => {
+    console.time('games');
+    console.log(execSync(`node build ${mode}`).toString());
+    console.timeEnd('games');
+};
+
+const scriptHandlers = {
+    sort,
+    emojis() {
+        console.log(execSync('node ./scripts/utils/fetchEmojis').toString());
+    },
+    lint() {
+        this.sort();
+        console.log(
+            execSync(
+                'eslint ./docs/.vuepress/ ./static/ ./prebuild/ ./build/ ./src/ ./scripts/ ./typings/ --ext .js,.ts,.vue -f table --no-error-on-unmatched-pattern --fix'
+            ).toString()
+        );
+    },
+    tscPrebuild() {
+        console.log(
+            execSync('tsc src/userscript.ts && tsc -b prebuild').toString()
+        );
+    },
+    predev() {
+        this.emojis();
+        this.lint();
+        this.tscPrebuild();
+        console.log(execSync('node prebuild').toString());
+    },
+    tscBuild() {
+        console.log(execSync('tsc -b build').toString());
+    },
+    dev() {
+        this.tscBuild();
+        build('development');
+        this.showChanges();
+    },
+    tscDocs() {
+        console.log(execSync('tsc -b docs/.vuepress/').toString());
+    },
+    docs() {
+        this.tscDocs();
+        console.log(execSync('vuepress build docs').toString());
+    },
+    preBuild() {
+        this.emojis();
+        this.lint();
+        this.tscPrebuild();
+        console.log(execSync('node prebuild production').toString());
+    },
+    build() {
+        this.tscBuild();
+        build('production');
+        this.showChanges();
+    },
+    showChanges() {
+        console.log(execSync('git diff --color-words').toString());
+    },
+} as { [key: string]: () => string | void };
+
+const execute = (script: string) => {
+    console.log(`### ${script} ###\n\n`);
+    console.time(script);
+    scriptHandlers[script]?.();
+    console.log(`\n\n=== end ${script} ===`);
+    console.timeEnd(script);
+};
+
 try {
-    const scriptHandlers = {
-        sort,
-        emojis() {
-            return execSync('node ./scripts/utils/fetchEmojis').toString();
-        },
-        lint() {
-            return [
-                this.sort(),
-                execSync(
-                    'eslint ./docs/.vuepress/ ./static/ ./prebuild/ ./build/ ./src/ ./scripts/ --ext .js,.vue -f table --no-error-on-unmatched-pattern --fix'
-                ).toString(),
-            ].join('\n\n');
-        },
-        tscPrebuild() {
-            return execSync(
-                'tsc src/userscript.ts && tsc -b prebuild'
-            ).toString();
-        },
-        predev() {
-            return [
-                this.emojis(),
-                this.lint(),
-                this.tscPrebuild(),
-                execSync('node prebuild').toString(),
-            ].join('\n\n');
-        },
-        tscBuild() {
-            return execSync('tsc -b build').toString();
-        },
-        dev() {
-            return [this.tscBuild(), execSync('node build').toString()].join(
-                '\n\n'
-            );
-        },
-        tscDocs() {
-            return execSync('tsc -b docs/.vuepress/').toString();
-        },
-        docs() {
-            return [
-                this.tscDocs(),
-                execSync('vuepress build docs').toString(),
-            ].join('\n\n');
-        },
-        preBuild() {
-            return [
-                this.emojis(),
-                this.lint(),
-                this.tscPrebuild(),
-                execSync('node prebuild production').toString(),
-            ].join('\n\n');
-        },
-        build() {
-            return [
-                this.tscBuild(),
-                execSync('node build production').toString(),
-            ].join('\n\n');
-        },
-    } as { [key: string]: () => string | void };
-
-    const outputs = scripts.map(
-        script =>
-            `### ${script} ###\n\n${scriptHandlers[script]?.() ||
-                ''}\n\n=== end ${script} ===`
-    );
-
-    console.log(outputs.join('\n\n\n'));
+    scripts.forEach(script => {
+        execute(script);
+        console.log('\n\n\n');
+    });
 } catch (e) {
     console.error(e);
     console.log(

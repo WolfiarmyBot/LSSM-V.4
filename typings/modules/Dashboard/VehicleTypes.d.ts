@@ -3,7 +3,7 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import VueI18n from 'vue-i18n';
 
 export interface VehicleTypes {
-    vehicleTypeNames: string[];
+    vehicleTypeNames: { [id: number]: string };
     statuses: number[];
     statusHeads: {
         [status: string]: {
@@ -72,6 +72,6 @@ export interface VehicleTypesComputed {
     vehicleTypesFiltered: TypeList;
     vehicleTypesSorted: string[];
     sum: {
-        [state: number]: number;
+        [state: string]: Vehicle[];
     };
 }

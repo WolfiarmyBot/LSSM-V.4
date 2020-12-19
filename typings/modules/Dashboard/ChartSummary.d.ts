@@ -10,8 +10,8 @@ export interface ChartSummary {
     buildingCategories: {
         [category: string]: BuildingCategory;
     };
-    buildingTypeNames: string[];
-    buildingTypeColors: string[];
+    buildingTypeNames: { [id: number]: string };
+    buildingTypeColors: { [id: number]: string };
     vehiclesId: string;
     vehicles: {
         [type: string]: Vehicle[];
@@ -19,11 +19,12 @@ export interface ChartSummary {
     vehicleCategories: {
         [category: string]: VehicleCategory;
     };
-    vehicleTypeNames: string[];
-    vehicleTypeColors: string[];
+    vehicleTypeNames: { [id: number]: string };
+    vehicleTypeColors: { [id: number]: string };
     vehiclesByBuilding: {
         [building: string]: Vehicle[];
     };
+    buildingsAsColumn: boolean;
 }
 
 export interface ChartSummaryMethods {
@@ -39,6 +40,8 @@ export interface ChartSummaryMethods {
             [key: string]: unknown;
         }
     ): VueI18n.TranslateResult;
+    changeBuildingChart(): void;
+    mountBuildingChart(): void;
 }
 
 export interface ChartSummaryComputed {

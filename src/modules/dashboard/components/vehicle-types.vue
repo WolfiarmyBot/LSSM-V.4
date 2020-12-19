@@ -57,16 +57,14 @@
                     {{ $sm('sum') }}
                 </th>
                 <th v-for="status in statuses" :key="`sum_${status}`">
-                    {{ (sum[status] || 0).toLocaleString() }}
+                    {{ sum[`s${status}`].length.toLocaleString() }}
                     <button
                         class="btn btn-default btn-xs vehicle-btn"
                         @click="
                             showVehicles(
                                 status,
                                 { title: $smc('vehicles') },
-                                Object.values(vehicleTypes).flatMap(
-                                    ({ fms }) => fms[`s${status}`]
-                                )
+                                sum[`s${status}`]
                             )
                         "
                     >
@@ -76,7 +74,9 @@
                     </button>
                 </th>
                 <th>
-                    {{ Object.values(sum).reduce((s, c) => (s += c), 0) }}
+                    {{
+                        Object.values(sum).reduce((s, c) => (s += c.length), 0)
+                    }}
                 </th>
             </tr>
         </template>
@@ -87,7 +87,7 @@
 import Vue from 'vue';
 import vehicleList from './vehicle-list.vue';
 import { faCarSide } from '@fortawesome/free-solid-svg-icons/faCarSide';
-import { Vehicle } from '../../../../typings/Vehicle';
+import { InternalVehicle, Vehicle } from '../../../../typings/Vehicle';
 import { DefaultProps } from 'vue/types/options';
 import {
     VehicleTypes,
@@ -110,22 +110,31 @@ export default Vue.extend<
             ),
     },
     data() {
-        const statuses = Object.values(this.$sm('statuses'));
+        const statuses = Object.values(this.$sm('statuses')) as number[];
         const statusText = this.$sm('status');
+        const fmsTexts = this.$t('fmsTexts') as {
+            [status: number]: string;
+        };
         const statusHeads = {} as {
             [status: string]: {
                 title: string;
+                titleAttr: string;
             };
         };
         Object.values(statuses).forEach(
             status =>
                 (statusHeads[`s${status}`] = {
                     title: `${statusText} ${status}`,
+                    titleAttr: `${statusText} ${status}: ${fmsTexts[status]}`,
                 })
         );
         return {
-            vehicleTypeNames: Object.values(this.$t('vehicles')).map(
-                type => type.caption
+            vehicleTypeNames: Object.fromEntries(
+                Object.entries(
+                    this.$t('vehicles') as {
+                        [id: number]: InternalVehicle;
+                    }
+                ).map(([index, { caption }]) => [index, caption])
             ),
             statuses,
             statusHeads,
@@ -147,7 +156,7 @@ export default Vue.extend<
                     status => (fms[`s${status}`] = [])
                 );
                 Object.values(vbt[type]).forEach(vehicle => {
-                    fms[`s${vehicle.fms_real}`].push(vehicle);
+                    fms[`s${vehicle.fms_show}`].push(vehicle);
                 });
                 types[`t${type}`] = {
                     title: this.vehicleTypeNames[parseInt(type)],
@@ -190,7 +199,16 @@ export default Vue.extend<
                 .map(e => e[0]);
         },
         sum() {
-            return this.$store.state.api.vehicleStates;
+            const vehicleTypes = (this.search
+                ? this.vehicleTypesFiltered
+                : this.vehicleTypes) as TypeList;
+            const FMSsum = {} as { [state: string]: Vehicle[] };
+            Object.values(this.statuses).forEach(status => {
+                FMSsum[`s${status}`] = Object.values(vehicleTypes).flatMap(
+                    ({ fms }) => fms[`s${status}`]
+                );
+            });
+            return FMSsum;
         },
     },
     methods: {

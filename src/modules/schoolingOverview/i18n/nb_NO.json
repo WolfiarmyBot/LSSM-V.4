@@ -1,0 +1,15 @@
+{
+	"all": "Alle",
+	"amount": "Amount Courses",
+	"open": "Open Courses",
+	"own": "Courses with participants",
+	"schooling": "Course",
+	"seats": "Number of places",
+	"titles": {
+		"end": "Time left",
+		"name": "Course",
+		"owner": "User",
+		"price": "Price",
+		"seats": "Free Places"
+	}
+}
