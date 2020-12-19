@@ -15,7 +15,7 @@ sidebarDepth: 2
 
 ## Om LSSM
 
-LSS-MANAGER V.4 er en udvidelse til [Leitstellenspiel.de](https://www.leitstellenspiel.de) og dens andre sprogversioner.
+LSS-MANAGER V.4 er en udvidelse til [https://www.alarmcentral-spil.dk/](https://www.leitstellenspiel.de) og dens andre sprogversioner.
 Med denne udvidelse tilføjes en app-butik til spillet, som tillader installation af plugins. Alle funktioner har en modulær struktur - du kan bestemme, hvad der skal aktiveres indtil den sidste komponent.
 Plugins die nicht aktiviert sind, werden auch nicht geladen - das macht die Verwaltung natürlich sehr einfach und sorgt für eine bessere Performance.
 
