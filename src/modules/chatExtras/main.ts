@@ -1,32 +1,18 @@
-import moment from 'moment';
-import { AllianceChatMessage } from 'typings/Ingame';
-import { $m, ModuleMainFunction } from 'typings/Module';
+import { ModuleMainFunction } from 'typings/Module';
 
 export default (async (LSSM, MODULE_ID) => {
-    const format = await LSSM.$store.dispatch('settings/getSetting', {
-        moduleId: MODULE_ID,
-        settingId: 'format',
-    });
-    let mission_chat_message_username = document.querySelectorAll(
-        '.mission_chat_message_username'
-    );
-    if (mission_chat_message_username) {
-        mission_chat_message_username.forEach(function (chatMessageHead) {
-            const messageHeader = chatMessageHead as HTMLElement;
-            let rawDate = messageHeader.parentElement?.getAttribute(
-                'data-message-time'
-            );
-            moment.locale(BUILD_LANG);
-            const timeStampModified = moment(rawDate).format(format);
-            messageHeader.innerText = '[' + timeStampModified + ']';
-            chatMessageHead = messageHeader as HTMLElement;
+    const getSetting = <type = boolean>(settingId: string): Promise<type> => {
+        return LSSM.$store.dispatch('settings/getSetting', {
+            moduleId: MODULE_ID,
+            settingId,
         });
-    }
-    await LSSM.$store.dispatch('premodifyParams', {
-        event: 'allianceChat',
-        callback(e: AllianceChatMessage) {
-            moment.locale(BUILD_LANG);
-            e.date_hidden = moment(e.iso_timestamp).format(format);
-        },
-    });
+    };
+
+    const chatTime = await getSetting('chatTime');
+    if (chatTime)
+        (
+            await import(
+                /* webpackChunkName: "modules/chatExtras/timeFormatter" */ './assets/timeFormatter'
+            )
+        ).default(LSSM, await getSetting<string>('chatTimeFormat'));
 }) as ModuleMainFunction;

@@ -34,7 +34,8 @@
                     @change="toggleModule(moduleId, $event)"
                     :id="
                         $store.getters.nodeAttribute(
-                            `appstore-toggle-${moduleId}`
+                            `appstore-toggle-${moduleId}`,
+                            true
                         )
                     "
                     :disabled="hasMapkitConflict(moduleId)"
@@ -79,7 +80,6 @@ import {
     AppstoreData,
     AppstoreMethods,
 } from '../../typings/components/Appstore';
-import { LSSM } from '../core';
 import isEqual from 'lodash/isEqual';
 import { Modules } from '../../typings/Module';
 import { DefaultProps } from 'vue/types/options';
@@ -159,7 +159,7 @@ export default Vue.extend<
                     this.$store.commit('setAppstoreChanges', this.changes);
                     this.$store.commit('setAppstoreReload');
                 })
-                .catch(err => console.error(err));
+                .catch(err => this.$store.dispatch('console/error', err));
         },
         reset() {
             Object.keys(this.modules).forEach(module => {
@@ -174,7 +174,8 @@ export default Vue.extend<
             });
             this.$store.commit('setAppstoreChanges', this.changes);
         },
-        $m: (key, args) => LSSM.$t(`modules.appstore.${key}`, args),
+        $m: (key, args) =>
+            (window[PREFIX] as Vue).$t(`modules.appstore.${key}`, args),
     },
 });
 </script>

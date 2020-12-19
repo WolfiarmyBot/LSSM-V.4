@@ -1,6 +1,5 @@
-import { Building } from 'typings/Building';
+// import { Building } from 'typings/Building';
 
-const moduleRootFiles = require.context('../', true, MODULE_ROOT_I18N_FILES);
 // Commented as dir ./en_US does not exist currently
 // const furtherFiles = require.context('./en_US/', true, /.*(\/index)?\.js(on)?/);
 const modules = {
@@ -33,6 +32,13 @@ const modules = {
             total: 'All settings',
             module: 'Only from this module',
         },
+        resetWarningSetting: {
+            title: 'Reset settings',
+            text:
+                'Do you really want to reset this one setting <b>{setting}</b> of the module <b>{module}</b> to its default value?',
+            close: 'Cancel',
+            reset: 'Reset',
+        },
         closeWarning: {
             title: 'Unsaved changes',
             text:
@@ -45,9 +51,6 @@ const modules = {
         },
     },
 } as { [moduleId: string]: { [key: string]: unknown } };
-moduleRootFiles
-    .keys()
-    .forEach(key => (modules[key.split('/')[2]] = moduleRootFiles(key)));
 
 const t = {} as { [key: string]: unknown };
 
@@ -81,6 +84,20 @@ export default {
             title: 'Label instead of icon in menu',
             description:
                 'Displays a simple label in the navigation bar instead of the LSSM logo',
+        },
+        allowTelemetry: {
+            description:
+                'Controls whether LSS-Manager is allowed to send Data which helps us in developing this extension.',
+            title: 'Allow Telemetry',
+        },
+        iconBg: {
+            description: 'Change the background of LSSM-Icon!',
+            title: 'LSSM-Icon Background',
+        },
+        iconBgAsNavBg: {
+            description:
+                'Color the whole navbar in the color of LSSM-Icon Background!',
+            title: 'colorize navbar',
         },
     },
     vehicles: {
@@ -129,7 +146,7 @@ export default {
         },
         5: {
             caption: 'Ambulance',
-            color: '#9c1c1c',
+            color: '#9c691c',
             coins: 25,
             credits: 5_000,
             minPersonnel: 1,
@@ -157,7 +174,7 @@ export default {
         },
         8: {
             caption: 'Police car',
-            color: '#8b1818',
+            color: '#0b6911',
             coins: 25,
             credits: 5_000,
             minPersonnel: 1,
@@ -165,7 +182,7 @@ export default {
         },
         9: {
             caption: 'Air Ambulance',
-            color: '#e61919',
+            color: '#ba9d0b',
             coins: 30,
             credits: 300_000,
             minPersonnel: 1,
@@ -179,7 +196,7 @@ export default {
             minPersonnel: 1,
             maxPersonnel: 3,
             wtank: 0,
-            special: 'Required from 5 fire stations'
+            special: 'Required from 5 fire stations',
         },
         11: {
             caption: 'MCV',
@@ -214,11 +231,10 @@ export default {
             wtank: 0,
             special:
                 'To purchase with credits it requires the rank: Captain, <br>Lower ranked members can purchase the vehicle for 25 Coins. <br>CARP acts as a Platform Truck and a Fire Truck.',
-
         },
         14: {
             caption: 'Police helicopter',
-            color: '#ca1616',
+            color: '#0e661d',
             coins: 30,
             credits: 300_000,
             minPersonnel: 1,
@@ -228,7 +244,7 @@ export default {
         },
         15: {
             caption: 'TOG Armoured Bearcat',
-            color: '#dc1818',
+            color: '#257513',
             coins: 25,
             credits: 10_000,
             minPersonnel: 1,
@@ -239,7 +255,7 @@ export default {
         },
         16: {
             caption: 'K-9 Unit',
-            color: '#791515',
+            color: '#15791a',
             coins: 25,
             credits: 7_000,
             minPersonnel: 1,
@@ -251,7 +267,7 @@ export default {
         },
         17: {
             caption: 'Police Motorcycle',
-            color: '#662222',
+            color: '#346622',
             coins: 18,
             credits: 2_500,
             minPersonnel: 1,
@@ -262,7 +278,7 @@ export default {
         },
         18: {
             caption: 'TOG SUV',
-            color: '#dc1818',
+            color: '#2c642e',
             coins: 23,
             credits: 7_000,
             minPersonnel: 2,
@@ -281,7 +297,7 @@ export default {
         },
         20: {
             caption: 'SES Vehicle',
-            color: '#992222',
+            color: '#22997d',
             coins: 25,
             credits: 10_000,
             minPersonnel: 1,
@@ -292,7 +308,7 @@ export default {
         },
         21: {
             caption: 'Rescue Boat',
-            color: '#882222',
+            color: '#229b7a',
             coins: 12,
             credits: 6_000,
             minPersonnel: 0,
@@ -301,12 +317,12 @@ export default {
             special: 'SES Vehicle is the towing vehicle',
         },
         22: {
-            caption: 'Community First Responder',
-            color: '#772222',
+            caption: 'Mounted Police',
+            color: '#105d36',
             coins: 10,
             credits: 15_000,
-            minPersonnel: 1,
-            maxPersonnel: 1,
+            minPersonnel: 0,
+            maxPersonnel: 0,
             schooling: 'Police - Mounted Police Training',
             shownSchooling: 'Mounted Police Training',
             special: 'Towing Vehicle is Police Car',
@@ -327,25 +343,27 @@ export default {
                 },
             ],
             levelcost: ['1. 10.000', '2. 50.000', '3.-16. 100.000'],
-            maxBuildings: '4.000 together with small fire stations',
+            maxBuildings: '4.400 together with small fire stations',
             maxLevel: 16,
             special:
                 'From the 24th fire station onwards, the cost of building a new fire station increases according to the following formula: <code>100.000+200.000*LOG<sub>2</sub>(Number of existing fire stations − 22)</code>. The Coins price remains constant!',
             startPersonnel: 10,
             startVehicles: ['Pumper', 'Light Tanker', 'Tanker'],
-            maxBuildingsFunction: (): number => 4_000,
+            maxBuildingsFunction: (): number => 4_400,
         },
         1: {
             caption: 'Fire academy',
             color: '#992222',
             coins: 50,
             credits: 500_000,
-            extensions: new Array(3).fill({
-                caption: 'Additional classroom',
-                credits: 400_000,
-                coins: 40,
-                duration: '7 Days',
-            }),
+            extensions: [
+                ...new Array(3).fill({
+                    caption: 'Additional classroom',
+                    credits: 400_000,
+                    coins: 40,
+                    duration: '7 Days',
+                }),
+            ],
             levelcost: [],
             maxBuildings: 'No limit',
             maxLevel: 0,
@@ -460,21 +478,27 @@ export default {
             coins: 35,
             credits: 100_000,
             extensions: [
-                ...new Array(10).fill({
-                    caption: 'cell',
+                {
+                    caption: 'Prison cell',
+                    credits: 25_000,
+                    coins: 5,
+                    duration: '7 Days',
+                },
+                ...new Array(9).fill({
+                    caption: 'Additional cell',
                     credits: 25_000,
                     coins: 5,
                     duration: '7 Days',
                 }),
             ],
             levelcost: ['1. 10.000', '2. 50.000', '3.-16. 100.000'],
-            maxBuildings: '1.500 together with small police stations',
+            maxBuildings: '1.700 together with small police stations',
             maxLevel: 16,
             special:
                 'From the 24th police station onwards, the costs for the new construction of a police station increase according to the following formula: <code>100.000+200.000*LOG<sub>2</sub>(Number of existing police stations − 22)</code>. The Coins price remains constant!',
             startPersonnel: 2,
             startVehicles: ['Police Car'],
-            maxBuildingsFunction: (): number => 1_500,
+            maxBuildingsFunction: (): number => 1_700,
         },
         7: {
             caption: 'Dispatch Center',
@@ -496,12 +520,14 @@ export default {
             color: '#225522',
             coins: 50,
             credits: 500_000,
-            extensions: new Array(3).fill({
-                caption: 'Additional classroom',
-                credits: 400_000,
-                coins: 40,
-                duration: '7 Days',
-            }),
+            extensions: [
+                ...new Array(3).fill({
+                    caption: 'Additional classroom',
+                    credits: 400_000,
+                    coins: 40,
+                    duration: '7 Days',
+                }),
+            ],
             levelcost: [],
             maxBuildings: 'No limit',
             maxLevel: 0,
@@ -551,8 +577,7 @@ export default {
             levelcost: ['1. 10.000', '2. 50.000', '3.-5. 100.000'],
             maxBuildings: 'No Limit',
             maxLevel: 5,
-            special:
-                'You will get 10 people and an SES vehicle for free.',
+            special: 'You will get 10 people and an SES vehicle for free.',
             startPersonnel: 6,
             startVehicles: ['SES Vehicle'],
         },
@@ -560,12 +585,20 @@ export default {
             caption: 'Police Lockup',
             coins: 'x',
             credits: 100_000,
-            extensions: new Array(10).fill({
-                caption: 'Cell',
-                credits: 25_000,
-                coins: 5,
-                duration: '7 Days',
-            }),
+            extensions: [
+                {
+                    caption: 'Prison cell',
+                    credits: 25_000,
+                    coins: 5,
+                    duration: '7 Days',
+                },
+                ...new Array(9).fill({
+                    caption: 'Additional cell',
+                    credits: 25_000,
+                    coins: 5,
+                    duration: '7 Days',
+                }),
+            ],
             levelcost: [],
             maxBuildings: 'No limit',
             maxLevel: 0,
@@ -586,38 +619,46 @@ export default {
                 '3.-5. 100.000',
                 'Conversion to normal guard: difference price to normal guard',
             ],
-            maxBuildings: '4.000 together with fire stations',
+            maxBuildings: '4.400 together with fire stations',
             maxLevel: 5,
             special:
                 'From the 24th fire station onwards, the cost of building a new fire station increases according to the following formula: <code>(100.000+200.000*LOG<sub>2</sub>(Number of existing fire stations − 22)) / 2</code>. max. 1 Million Credits. The Coins price remains constant!',
             startPersonnel: 10,
             startVehicles: ['Pumper', 'Light Tanker', 'Tanker'],
-            maxBuildingsFunction: (): number => 4_000,
+            maxBuildingsFunction: (): number => 4_400,
         },
         19: {
             caption: 'Police Station (Small station)',
             color: '#116611',
             coins: 25,
             credits: 50_000,
-            extensions: new Array(2).fill({
-                caption: 'cell',
-                credits: 25_000,
-                coins: 5,
-                duration: '7 Days',
-            }),
+            extensions: [
+                {
+                    caption: 'Prison cell',
+                    credits: 25_000,
+                    coins: 5,
+                    duration: '7 Days',
+                },
+                ...new Array(1).fill({
+                    caption: 'Additional cell',
+                    credits: 25_000,
+                    coins: 5,
+                    duration: '7 Days',
+                }),
+            ],
             levelcost: [
                 '1. 10.000',
                 '2. 50.000',
                 '3.-4. 100.000',
                 'Conversion to normal guard: difference price to normal guard',
             ],
-            maxBuildings: '1.500 mit Polizeiwachen zusammen',
+            maxBuildings: '1.700 mit Polizeiwachen zusammen',
             maxLevel: 4,
             special:
                 'From the 24th police station onwards, the costs for the new construction of a police station are calculated according to the following formula: <code>(100.000+200.000*LOG<sub>2</sub>(Number of existing police stations − 22)) / 2</code>. The Coins price remains constant!',
             startPersonnel: 2,
             startVehicles: ['Police Car'],
-            maxBuildingsFunction: (): number => 1_500,
+            maxBuildingsFunction: (): number => 1_700,
         },
         20: {
             caption: 'Ambulance Station (Small station)',
@@ -653,7 +694,7 @@ export default {
         },
         'SES': {
             buildings: [15],
-            color: '#0000ff'
+            color: '#0000ff',
         },
         'Other': {
             buildings: [7, 14],
@@ -671,8 +712,8 @@ export default {
         },
         'Rescue Vehicles': {
             vehicles: {
-                'Ambulances': [5],
-                'HEMS': [9],
+                Ambulances: [5],
+                HEMS: [9],
             },
             color: '#ffa500',
         },
@@ -683,13 +724,13 @@ export default {
                 'Police Motorcycle': [17],
                 'Police helicopter': [14],
                 'K-9 Unit': [16],
-                'Mounted': [22]
+                'Mounted': [22],
             },
             color: '#00ac00',
         },
         'SES': {
             vehicles: {
-                'SES': [20, 21],
+                SES: [20, 21],
             },
             color: '#02a18c',
         },
@@ -766,6 +807,7 @@ export default {
     },
     amount: 'Quantity',
     search: 'Search',
+    mapSearch: 'Location search',
     alliance: 'Alliance',
     premiumNotice:
         'This feature extends a premium feature of the game and is therefore only available for players with a Missionchief game premium account!',
@@ -867,7 +909,10 @@ export default {
         'Landfill site',
         'Parking Garage',
         'Intersection with lights',
-        'Joinery',
+        'Carpentry Workshop',
+        'Restaurant',
+        'City Centre',
+        'Hill',
     ],
     only_alliance_missions: [57, 74],
     transfer_missions: [],
