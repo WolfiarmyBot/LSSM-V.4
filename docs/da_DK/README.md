@@ -13,7 +13,7 @@ sidebarDepth: 2
 
 <a :href="$themeConfig.variables.discord" target="_blank" style="float: right;"><img src="https://discord.com/api/guilds/254167535446917120/embed.png?style=banner1" alt="Unser Discord-Server: United Dispatch" data-prevent-zooming></a>
 
-## Über den LSSM
+## Om LSSM
 
 LSS-MANAGER V.4 er en udvidelse til [Leitstellenspiel.de] (https://www.leitstellenspiel.de) og dens andre sprogversioner.
 Med denne udvidelse tilføjes en app-butik til spillet, som tillader installation af plugins. Alle funktioner har en modulær struktur - du kan bestemme, hvad der skal aktiveres indtil den sidste komponent.
