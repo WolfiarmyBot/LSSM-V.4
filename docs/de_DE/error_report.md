@@ -10,9 +10,11 @@ sidebarDepth: 2
 Hier ist eine kleine Guideline, wie Sie Fehlermeldungen optimal erstellen können
 
 Bevor Sie einen Fehler melden, kann es hilfreich sein, hier im Wiki nachzuschauen, ob dies eine gewünschte Funktion ist oder ob sie bereits bekannt ist. Im letzteren Fall könnte es sogar eine mögliche Lösung geben.
+
 ::: tip
 Wenn Sie einen Fehler melden möchten, beschreiben Sie ihn immer so genau wie möglich. Je detaillierter Ihre Fehlermeldung ist, desto schneller können wir Ihnen helfen.
 :::
+
 ::: warning
 Bitte beachten Sie, dass wir ältere Browser, mobile Browser und Microsoft Edge oder Internet Explorer offiziell nicht unterstützen. Die Unterstützung dieser Browser ist daher weder garantiert noch wahrscheinlich.
 :::
