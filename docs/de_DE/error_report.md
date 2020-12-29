@@ -1,27 +1,27 @@
 ---
-title: Rapporter en fejl
-lang: da_DK
+title: Reporte Fehler
+lang: de_DE
 sidebarDepth: 2
 ---
 
-# Rapporter en fejl
+# Reporte Fehler
 
-## Retningslinje
-Her er en lille retningslinje for, hvordan man optimalt opretter fejlmeddelelser.
+## Guideline
+Hier ist eine kleine Guideline, wie Sie Fehlermeldungen optimal erstellen können
 
-Før du rapporterer en fejl, kan det være nyttigt at se her på wiki på forhånd for at se, om dette ikke er en ønsket funktion eller allerede er kendt. I sidstnævnte tilfælde kan en mulig løsning endda vises.
+Bevor Sie einen Fehler melden, kann es hilfreich sein, hier im Wiki nachzuschauen, ob dies eine gewünschte Funktion ist oder ob sie bereits bekannt ist. Im letzteren Fall könnte es sogar eine mögliche Lösung geben.
 ::: tip
-Når du vil rapportere en fejl, skal du altid beskrive den så præcist som muligt. Jo mere detaljeret din fejlmeddelelse er, jo hurtigere kan vi hjælpe dig.
+Wenn Sie einen Fehler melden möchten, beschreiben Sie ihn immer so genau wie möglich. Je detaillierter Ihre Fehlermeldung ist, desto schneller können wir Ihnen helfen.
 :::
 ::: warning
-Bemærk, at vi ikke officielt understøtter ældre browsere, mobilbrowsere og Microsoft Edge eller Internet Explorer. Support til disse browsere er hverken garanteret eller sandsynlig.
+Bitte beachten Sie, dass wir ältere Browser, mobile Browser und Microsoft Edge oder Internet Explorer offiziell nicht unterstützen. Die Unterstützung dieser Browser ist daher weder garantiert noch wahrscheinlich.
 :::
 
-### 1. Formuler problemet
-zunäBeskriv først problemet. Det er bedst at medtage alle oplysninger, der kan være vigtige på samme tid. Medtag en forklaring på, hvad du lavede, da fejlen opstod.chst den Fehler. Liefere dabei jede Information, die wichtig sein könnte am besten gleich mit. Erkläre dabei auch, was du getan hast, als der Fehler auftrat.
+### 1. Problem formulieren
+Beschreiben Sie zuerst den Fehler. Geben Sie alle Informationen an, die wichtig sein könnten. Erklären Sie auch, was Sie getan haben, als der Fehler aufgetreten ist.
 
-### 2. Angiv brugerdata
-Giv os dit brugernavn eller bruger-id. Det giver også mening at angive de aktiverede moduler med det samme. Angiv også versionen af ​​LSSM. Du kan finde det, hvis du klikker på 'LSSM V.4' i øverste højre hjørne af hovedsiden i spillet i første linje.
+### 2. Geben Sie Benutzerdaten an
+Bitte geben Sie Ihren Benutzernamen oder Ihre Benutzer-ID an. Es ist auch nützlich, die aktivierten Module anzugeben. Bitte geben Sie auch die Version von LSSM an. Sie finden es, indem Sie oben rechts auf der Hauptseite des Spiels rechts in der ersten Zeile auf "LSSM V.4" klicken.
 
-### 3. rapporter et problem
-Nu kan du sende os dit formulerede problem med brugerdata. Åbn et problem for dette på <a :href="$themeConfig.variables.github +'/issues'" target="_blank"> GitHub </a>. Kontroller her på forhånd, om der allerede findes et problem for denne fejl, og følg det derefter op.
+### 3. Problem melden
+Jetzt können Sie uns Ihr formuliertes Problem mit Benutzerdaten senden. Öffnen Sie dazu ein Problem auf <a :href="$themeConfig.variables.github +'/issues'" target="_blank"> GitHub </a>. Bitte überprüfen Sie, ob bereits ein Problem für diesen Fehler vorliegt, und verfolgen Sie es anschließend.
